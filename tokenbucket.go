@@ -1,11 +1,12 @@
 package tokenbucket
 
 import (
+	"github.com/danriti/tokenbucket/utils"
 	"time"
 )
 
 type TokenBucket struct {
-	count     int
+	available int
 	rate      int
 	size      int
 	timestamp int64
@@ -14,7 +15,7 @@ type TokenBucket struct {
 // Creates a new TokenBucket.
 func New(rate int, size int) *TokenBucket {
 	tb := &TokenBucket{
-		count:     0,
+		available: 0,
 		rate:      rate,
 		size:      size,
 		timestamp: time.Now().Unix(),
@@ -22,28 +23,42 @@ func New(rate int, size int) *TokenBucket {
 	return tb
 }
 
-// Returns the current count of available tokens.
-func (tb *TokenBucket) Tokens() int {
+// Returns the elapsed time in seconds.
+func (tb *TokenBucket) ElapsedTimeSeconds() int {
 	now := time.Now().Unix()
 	seconds := int(0)
+
 	if now > tb.timestamp {
 		seconds = int(now - tb.timestamp)
 	}
-    tb.timestamp = time.Now().Unix()
-    tokens := seconds * tb.rate
-    if tokens > tb.size {
-        return tb.size
-    }
-	return tokens
+
+	return seconds
+}
+
+// Returns the current count of available tokens.
+func (tb *TokenBucket) Tokens() int {
+	tb.UpdateAvailable()
+	return tb.available
+}
+
+// Update the current count of available tokens.
+func (tb *TokenBucket) UpdateAvailable() {
+	if tb.available < tb.size {
+		seconds := tb.ElapsedTimeSeconds()
+		tokens := (tb.rate * seconds) + tb.available
+		tb.available = utils.MinInt(tb.size, tokens)
+		tb.timestamp = time.Now().Unix()
+	}
 }
 
 // Consumes tokens. Returns true if there were sufficient tokens available.
-func (tb *TokenBucket) Consume(count int) bool {
-    available := tb.Tokens() + tb.count
-    if count <= available {
-        tb.count += available - count
-        return true
-    } else {
-        return false
-    }
+func (tb *TokenBucket) Consume(size int) bool {
+	tb.UpdateAvailable()
+
+	if size > tb.available {
+		return false
+	}
+
+	tb.available -= size
+	return true
 }

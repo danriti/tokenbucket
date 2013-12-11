@@ -64,29 +64,63 @@ func TestTokens2(t *testing.T) {
 	}
 }
 
+func TestUpdateAvailable(t *testing.T) {
+	tb := New(1, 1)
+	out := 0
+	time.Sleep(1 * time.Second) // 1 tokens available
+	tb.UpdateAvailable()
+	out = 1
+	if x := tb.available; x != out {
+		t.Errorf("UpdateAvailable().available = %v, want %v", x, out)
+	}
+	time.Sleep(5 * time.Second) // 1 tokens available
+	tb.UpdateAvailable()
+	out = 1
+	if x := tb.available; x != out {
+		t.Errorf("UpdateAvailable().available = %v, want %v", x, out)
+	}
+}
+
+func TestUpdateAvailable2(t *testing.T) {
+	tb := New(1, 10)
+	out := 0
+	time.Sleep(1 * time.Second) // 1 tokens available
+	tb.UpdateAvailable()
+	out = 1
+	if x := tb.available; x != out {
+		t.Errorf("UpdateAvailable().available = %v, want %v", x, out)
+	}
+	time.Sleep(5 * time.Second) // 6 tokens available
+	tb.UpdateAvailable()
+	out = 6
+	if x := tb.available; x != out {
+		t.Errorf("UpdateAvailable().available = %v, want %v", x, out)
+	}
+}
+
 func TestConsume(t *testing.T) {
-    tb := New(1, 20)
-    if tb.Consume(1) != false {
+	tb := New(1, 20)
+	if tb.Consume(1) != false {
 		t.Errorf("Consume() should fail.")
-    }
-    time.Sleep(1 * time.Second) // 1 token available
-    if tb.Consume(1) != true {
+	}
+	time.Sleep(1 * time.Second) // 1 token available
+	if tb.Consume(1) != true {
 		t.Errorf("Consume() should succeed")
-    }
-    time.Sleep(10 * time.Second) // 10 tokens available
-    if tb.Consume(11) != false {
+	}
+	time.Sleep(10 * time.Second) // 10 tokens available
+	if tb.Consume(11) != false {
 		t.Errorf("Consume() should fail")
-    }
+	}
 }
 
 func TestConsume2(t *testing.T) {
-    tb := New(1, 20)
-    time.Sleep(5 * time.Second) // 5 tokens available
-    if tb.Consume(4) != true {
+	tb := New(1, 20)
+	time.Sleep(5 * time.Second) // 5 tokens available
+	if tb.Consume(4) != true {
 		t.Errorf("Consume() should succeed.")
-    }
-    time.Sleep(1 * time.Second) // 2 tokens available
-    if tb.Consume(2) != true {
+	}
+	time.Sleep(1 * time.Second) // 2 tokens available
+	if tb.Consume(2) != true {
 		t.Errorf("Consume() should succeed")
-    }
+	}
 }
