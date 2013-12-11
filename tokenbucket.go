@@ -53,9 +53,7 @@ func (tb *TokenBucket) UpdateAvailable() {
 
 // Consumes tokens. Returns true if there were sufficient tokens available.
 func (tb *TokenBucket) Consume(size int) bool {
-	tb.UpdateAvailable()
-
-	if size > tb.available {
+	if size > tb.Tokens() {
 		return false
 	}
 
