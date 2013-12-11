@@ -28,20 +28,65 @@ func TestNew(t *testing.T) {
 	}
 }
 
-func TestGetTokens(t *testing.T) {
+func TestTokens(t *testing.T) {
 	tb := New(1, 1)
 	var out = 0
-	if x := tb.GetTokens(); x != out {
-		t.Errorf("GetTokens() = %v, want %v", x, out)
+	if x := tb.Tokens(); x != out {
+		t.Errorf("Tokens() = %v, want %v", x, out)
 	}
-	time.Sleep(time.Second)
+	time.Sleep(1 * time.Second)
 	out = 1
-	if x := tb.GetTokens(); x != out {
-		t.Errorf("GetTokens() = %v, want %v", x, out)
+	if x := tb.Tokens(); x != out {
+		t.Errorf("Tokens() = %v, want %v", x, out)
 	}
 	time.Sleep(5 * time.Second)
-	out = 6
-	if x := tb.GetTokens(); x != out {
-		t.Errorf("GetTokens() = %v, want %v", x, out)
+	out = 1
+	if x := tb.Tokens(); x != out {
+		t.Errorf("Tokens() = %v, want %v", x, out)
 	}
+}
+
+func TestTokens2(t *testing.T) {
+	tb := New(1, 5)
+	var out = 0
+	if x := tb.Tokens(); x != out {
+		t.Errorf("Tokens() = %v, want %v", x, out)
+	}
+	time.Sleep(1 * time.Second)
+	out = 1
+	if x := tb.Tokens(); x != out {
+		t.Errorf("Tokens() = %v, want %v", x, out)
+	}
+	time.Sleep(5 * time.Second)
+	out = 5
+	if x := tb.Tokens(); x != out {
+		t.Errorf("Tokens() = %v, want %v", x, out)
+	}
+}
+
+func TestConsume(t *testing.T) {
+    tb := New(1, 20)
+    if tb.Consume(1) != false {
+		t.Errorf("Consume() should fail.")
+    }
+    time.Sleep(1 * time.Second) // 1 token available
+    if tb.Consume(1) != true {
+		t.Errorf("Consume() should succeed")
+    }
+    time.Sleep(10 * time.Second) // 10 tokens available
+    if tb.Consume(11) != false {
+		t.Errorf("Consume() should fail")
+    }
+}
+
+func TestConsume2(t *testing.T) {
+    tb := New(1, 20)
+    time.Sleep(5 * time.Second) // 5 tokens available
+    if tb.Consume(4) != true {
+		t.Errorf("Consume() should succeed.")
+    }
+    time.Sleep(1 * time.Second) // 2 tokens available
+    if tb.Consume(2) != true {
+		t.Errorf("Consume() should succeed")
+    }
 }
